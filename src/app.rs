@@ -110,42 +110,43 @@ pub async fn run(cli: Cli) -> Result<()> {
             let concurrency = config.get_concurrency();
             let repos: Vec<String> = config.repos.clone();
 
-            let mut results = stream::iter(repos.into_iter().enumerate())
-                .map(|(idx, repo)| async move {
-                    let mut lines = Vec::new();
-                    lines.push(format!("检查路径: {}", repo));
+            let mut results: Vec<(usize, Vec<String>)> =
+                stream::iter(repos.into_iter().enumerate())
+                    .map(|(idx, repo)| async move {
+                        let mut lines = Vec::new();
+                        lines.push(format!("检查路径: {}", repo));
 
-                    if let Err(e) = git_ops::fetch_repo(&repo).await {
-                        lines.push(format!("❌ [{}]: {}", repo.red(), e));
-                        return (idx, lines);
-                    }
-
-                    match git_ops::get_repo_status(&repo).await {
-                        Ok(status) => {
-                            if status.behind > 0 {
-                                lines.push(format!(
-                                    "⚠️  [{}]: 落后云端 {} 个 commits",
-                                    repo.yellow(),
-                                    status.behind.to_string().red()
-                                ));
-                            } else if status.ahead > 0 {
-                                lines.push(format!(
-                                    "🚀 [{}]: 领先云端 {} 个 commits (未 push)",
-                                    repo.cyan(),
-                                    status.ahead
-                                ));
-                            } else {
-                                lines.push(format!("✅ [{}]: 已是最新", repo.green()));
-                            }
+                        if let Err(e) = git_ops::fetch_repo(&repo).await {
+                            lines.push(format!("❌ [{}]: {}", repo.red(), e));
+                            return (idx, lines);
                         }
-                        Err(e) => lines.push(format!("❌ [{}]: {}", repo.red(), e)),
-                    }
 
-                    (idx, lines)
-                })
-                .buffer_unordered(concurrency)
-                .collect::<Vec<_>>()
-                .await;
+                        match git_ops::get_repo_status(&repo).await {
+                            Ok(status) => {
+                                if status.behind > 0 {
+                                    lines.push(format!(
+                                        "⚠️  [{}]: 落后云端 {} 个 commits",
+                                        repo.yellow(),
+                                        status.behind.to_string().red()
+                                    ));
+                                } else if status.ahead > 0 {
+                                    lines.push(format!(
+                                        "🚀 [{}]: 领先云端 {} 个 commits (未 push)",
+                                        repo.cyan(),
+                                        status.ahead
+                                    ));
+                                } else {
+                                    lines.push(format!("✅ [{}]: 已是最新", repo.green()));
+                                }
+                            }
+                            Err(e) => lines.push(format!("❌ [{}]: {}", repo.red(), e)),
+                        }
+
+                        (idx, lines)
+                    })
+                    .buffer_unordered(concurrency)
+                    .collect::<Vec<_>>()
+                    .await;
 
             results.sort_by_key(|(idx, _)| *idx);
             for (_, lines) in results {
@@ -177,19 +178,16 @@ pub async fn run(cli: Cli) -> Result<()> {
                         return (idx, lines);
                     }
 
-                    match git_ops::get_repo_status(&repo).await {
-                        Ok(status) => {
-                            if status.behind > 0 {
-                                let result = match git_ops::update_repo(&repo).await {
-                                    Ok(_) => format!("{}", "成功!".green()),
-                                    Err(e) => format!("{} ({})", "失败".red(), e),
-                                };
-                                lines.push(format!("🔄 正在更新 {} ... {}", repo.yellow(), result));
-                            } else {
-                                lines.push(format!("✅ [{}]: 无需更新", repo.green()));
-                            }
+                    if let Ok(status) = git_ops::get_repo_status(&repo).await {
+                        if status.behind > 0 {
+                            let result = match git_ops::update_repo(&repo).await {
+                                Ok(_) => format!("{}", "成功!".green()),
+                                Err(e) => format!("{} ({})", "失败".red(), e),
+                            };
+                            lines.push(format!("🔄 正在更新 {} ... {}", repo.yellow(), result));
+                        } else {
+                            lines.push(format!("✅ [{}]: 无需更新", repo.green()));
                         }
-                        Err(_) => {}
                     }
 
                     (idx, lines)
