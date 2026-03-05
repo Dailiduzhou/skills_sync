@@ -39,7 +39,7 @@ pub fn get_repo_status(repo_path: &str) -> Result<RepoStatus> {
 
     // 解析输出，例如 "0\t4\n" -> ahead 0, behind 4
     let result_str = String::from_utf8_lossy(&output.stdout);
-    let parts: Vec<&str> = result_str.trim().split_whitespace().collect();
+    let parts: Vec<&str> = result_str.split_whitespace().collect();
 
     if parts.len() == 2 {
         let ahead: u32 = parts[0].parse().unwrap_or(0);
