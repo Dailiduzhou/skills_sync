@@ -7,7 +7,8 @@ mod git;
 use clap::Parser;
 use crate::cli::Cli;
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    app::run(cli)
+    app::run(cli).await
 }

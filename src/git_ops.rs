@@ -1,19 +1,19 @@
 use anyhow::{Context, Result};
-use std::process::Command;
+use tokio::process::Command;
 
 pub struct RepoStatus {
-    pub path: String,
     pub ahead: u32,
     pub behind: u32,
 }
 
 /// 执行 git fetch
-pub fn fetch_repo(repo_path: &str) -> Result<()> {
+pub async fn fetch_repo(repo_path: &str) -> Result<()> {
     let status = Command::new("git")
         .current_dir(repo_path) // 非常关键：告诉命令在哪个目录执行！
         .arg("fetch")
         .arg("--quiet") // 减少不必要的输出
         .status()
+        .await
         .context(format!("在 {} 执行 git fetch 失败", repo_path))?;
 
     if !status.success() {
@@ -23,12 +23,13 @@ pub fn fetch_repo(repo_path: &str) -> Result<()> {
 }
 
 /// 获取落后/领先的 commits 数量
-pub fn get_repo_status(repo_path: &str) -> Result<RepoStatus> {
+pub async fn get_repo_status(repo_path: &str) -> Result<RepoStatus> {
     let output = Command::new("git")
         .current_dir(repo_path)
         // HEAD...@{u} 需要仓库设置了 upstream tracking
         .args(["rev-list", "--left-right", "--count", "HEAD...@{u}"])
         .output()
+        .await
         .context("无法执行 git rev-list")?;
 
     if !output.status.success() {
@@ -45,7 +46,6 @@ pub fn get_repo_status(repo_path: &str) -> Result<RepoStatus> {
         let ahead: u32 = parts[0].parse().unwrap_or(0);
         let behind: u32 = parts[1].parse().unwrap_or(0);
         Ok(RepoStatus {
-            path: repo_path.to_string(),
             ahead,
             behind,
         })
@@ -55,11 +55,12 @@ pub fn get_repo_status(repo_path: &str) -> Result<RepoStatus> {
 }
 
 /// 执行 git pull
-pub fn update_repo(repo_path: &str) -> Result<()> {
+pub async fn update_repo(repo_path: &str) -> Result<()> {
     let status = Command::new("git")
         .current_dir(repo_path)
         .args(["pull", "--ff-only"])
-        .status()?;
+        .status()
+        .await?;
 
     if !status.success() {
         anyhow::bail!("拉取失败，可能存在冲突或本地未提交的修改");
