@@ -16,7 +16,7 @@ pub fn run(cli: Cli) -> Result<()> {
         }
         Commands::Status => {
             if config.repos.is_empty() {
-                println!("列表为空。请先使用 `gitsync add <路径>` 添加仓库。");
+                println!("列表为空。请先使用 `skillsync add <路径>` 添加仓库。");
                 return Ok(());
             }
             println!("正在检查 {} 个仓库...", config.repos.len());
@@ -47,7 +47,7 @@ pub fn run(cli: Cli) -> Result<()> {
         }
         Commands::Update => {
             if config.repos.is_empty() {
-                println!("列表为空。请先使用 `gitsync add <路径>` 添加仓库。");
+                println!("列表为空。请先使用 `skillsync add <路径>` 添加仓库。");
                 return Ok(());
             }
             for repo in &config.repos {

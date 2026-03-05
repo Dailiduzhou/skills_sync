@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "skills_sync", about = "多 Git 仓库状态同步与更新工具")]
+#[command(name = "skillsync", about = "多 Git 仓库状态同步与更新工具")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,

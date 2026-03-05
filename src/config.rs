@@ -13,13 +13,13 @@ pub struct Config {
 
 impl Config {
     /// 获取配置文件的完整路径
-    /// 例如 Linux 下可能是 ~/.config/gitsync/config.toml
+    /// 例如 Linux 下可能是 ~/.config/skillsync/config.toml
     pub fn get_path() -> Result<PathBuf> {
         // ProjectDirs::from(qualifier, organization, application)
-        if let Some(proj_dirs) = ProjectDirs::from("com", "myname", "gitsync") {
+        if let Some(proj_dirs) = ProjectDirs::from("com", "dailiduzhou", "skillsync") {
             let config_dir = proj_dirs.config_dir();
 
-            // 如果目录不存在，自动创建它 (例如 ~/.config/gitsync/)
+            // 如果目录不存在，自动创建它 (例如 ~/.config/skillsync/)
             if !config_dir.exists() {
                 fs::create_dir_all(config_dir).context("无法创建配置目录")?;
             }
