@@ -8,6 +8,19 @@ pub struct Cli {
 }
 
 #[derive(Subcommand)]
+pub enum KeyCommands {
+    /// 从文件导入 SSH 私钥到系统钥匙串
+    Import {
+        /// 私钥文件路径
+        path: String,
+    },
+    /// 从系统钥匙串删除已保存的 SSH 私钥
+    Remove,
+    /// 查看是否已保存 SSH 私钥
+    Status,
+}
+
+#[derive(Subcommand)]
 pub enum Commands {
     /// 检查所有仓库的状态
     Status,
@@ -49,5 +62,19 @@ pub enum Commands {
         /// 最大扫描深度（不传则不限深度，0 表示仅当前目录）
         #[arg(long)]
         max_depth: Option<usize>,
+    },
+    /// 克隆一个或多个 Git 仓库，并自动加入监控列表
+    Clone {
+        /// 仓库地址，支持多个
+        #[arg(num_args = 1..)]
+        repos: Vec<String>,
+        /// 克隆目标目录（默认当前目录）
+        #[arg(long, default_value = ".")]
+        dir: String,
+    },
+    /// 管理项目私有的 SSH 私钥（存储在系统钥匙串中）
+    Key {
+        #[command(subcommand)]
+        command: KeyCommands,
     },
 }

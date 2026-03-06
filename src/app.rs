@@ -3,11 +3,13 @@ use colored::Colorize;
 use futures::stream::{self, StreamExt};
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::cli::{Cli, Commands};
+use crate::cli::{Cli, Commands, KeyCommands};
+use crate::commands::clone as clone_cmd;
 use crate::config::Config;
 use crate::git::ops as git_ops;
 use crate::git::scan as git_scan;
-use std::path::Path;
+use crate::ssh_key;
+use std::path::{Path, PathBuf};
 
 pub async fn run(cli: Cli) -> Result<()> {
     // 每次运行命令前，先加载配置文件
@@ -97,6 +99,27 @@ pub async fn run(cli: Cli) -> Result<()> {
                 }
             }
         }
+        Commands::Clone { repos, dir } => {
+            clone_cmd::run_clone(&mut config, repos, dir).await?;
+        }
+        Commands::Key { command } => match command {
+            KeyCommands::Import { path } => {
+                let path = PathBuf::from(path);
+                ssh_key::import_key_from_file(&path)?;
+                println!("已将私钥保存到系统钥匙串。");
+            }
+            KeyCommands::Remove => {
+                ssh_key::delete_key()?;
+                println!("已从系统钥匙串删除私钥。");
+            }
+            KeyCommands::Status => {
+                if ssh_key::get_key()?.is_some() {
+                    println!("已保存 SSH 私钥。");
+                } else {
+                    println!("未保存 SSH 私钥。");
+                }
+            }
+        },
         Commands::Status => {
             if config.repos.is_empty() {
                 println!(
