@@ -9,7 +9,7 @@ use crate::git::ops as git_ops;
 pub async fn run(config: &Config) -> Result<()> {
     if config.repos.is_empty() {
         println!(
-            "列表为空。请先使用 `skillsync add <路径>` 或 `skillsync add-recursive <路径>` 添加仓库。"
+            "列表为空。请先使用 `skillsync add <路径...>` 或 `skillsync add-recursive <路径>` 添加仓库。"
         );
         return Ok(());
     }

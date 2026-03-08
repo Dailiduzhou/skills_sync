@@ -13,8 +13,8 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::SetConcurrency { value } => {
             concurrency::set(&mut config, value).await?;
         }
-        Commands::Add { path } => {
-            repos::add(&mut config, path).await?;
+        Commands::Add { paths } => {
+            repos::add(&mut config, paths).await?;
         }
         Commands::AddRecursive { path, max_depth } => {
             repos::add_recursive(&mut config, path, max_depth).await?;

@@ -33,11 +33,11 @@ pub enum Commands {
         /// 并发数，必须大于 0
         value: usize,
     },
-    /// 将一个本地 Git 仓库添加到监控列表中
+    /// 将一个或多个本地 Git 仓库添加到监控列表中
     Add {
-        /// 仓库的本地路径，默认为当前目录
-        #[arg(default_value = ".")]
-        path: String,
+        /// 仓库的本地路径，支持多个，默认为当前目录
+        #[arg(num_args = 1.., default_value = ".")]
+        paths: Vec<String>,
     },
     /// 递归扫描目录，把子文件夹中的 Git 仓库加入监控列表
     AddRecursive {

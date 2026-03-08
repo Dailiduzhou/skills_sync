@@ -203,10 +203,10 @@ fn try_add_key_to_agent(config_dir: &Path, key: &str) -> Result<bool> {
         Err(e) => return Err(anyhow::anyhow!("检查 ssh-agent 失败: {}", e)),
     };
 
-    if let Some(code) = list_status.code() {
-        if code == 2 {
-            return Ok(false);
-        }
+    if let Some(code) = list_status.code()
+        && code == 2
+    {
+        return Ok(false);
     }
 
     let temp_key = write_temp_key(config_dir, key)?;

@@ -4,8 +4,26 @@ use std::path::Path;
 use crate::config::Config;
 use crate::git::scan as git_scan;
 
-pub async fn add(config: &mut Config, path: String) -> Result<()> {
-    config.add_repo(path).await?;
+pub async fn add(config: &mut Config, paths: Vec<String>) -> Result<()> {
+    if paths.len() == 1 {
+        let path = paths.into_iter().next().unwrap();
+        config.add_repo(path).await?;
+        return Ok(());
+    }
+
+    let summary = config.add_repos(paths).await?;
+    println!(
+        "添加完成：新增 {} 个，已存在 {} 个。",
+        summary.added, summary.already
+    );
+
+    if !summary.failed.is_empty() {
+        println!("以下路径添加失败:");
+        for (path, reason) in summary.failed {
+            println!("  - {} ({})", path, reason);
+        }
+    }
+
     Ok(())
 }
 
