@@ -104,7 +104,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         }
         Commands::Key { command } => match command {
             KeyCommands::Import { path } => {
-                let path = PathBuf::from(path);
+                let path: PathBuf = PathBuf::from(path);
                 ssh_key::import_key_from_file(&path)?;
                 println!("已将私钥保存到系统钥匙串。");
             }
@@ -147,7 +147,7 @@ pub async fn run(cli: Cli) -> Result<()> {
                     .map(|(idx, repo)| {
                         let progress = progress_for_tasks.clone();
                         async move {
-                            let mut lines = Vec::new();
+                            let mut lines: Vec<String> = Vec::new();
                             lines.push(format!("检查路径: {}", repo));
 
                             progress.set_message(repo.clone());
