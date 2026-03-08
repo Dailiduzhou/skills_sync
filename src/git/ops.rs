@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use std::path::Path;
+use std::{path::Path, process::Stdio};
 use tokio::process::Command;
 
 pub struct RepoStatus {
@@ -73,10 +73,10 @@ pub async fn clone_repo(
     git_ssh_command: Option<&str>,
 ) -> Result<()> {
     let mut cmd = Command::new("git");
-    cmd.arg("clone")
-        .arg("--progress")
-        .arg(repo_url)
-        .arg(dest_dir);
+    cmd.arg("clone").arg("--quiet").arg(repo_url).arg(dest_dir);
+
+    cmd.stdout(Stdio::null());
+    cmd.stderr(Stdio::piped());
 
     if let Some(command) = git_ssh_command {
         cmd.env("GIT_SSH_COMMAND", command);

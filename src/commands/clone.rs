@@ -53,7 +53,6 @@ pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> 
     let mut seen_dest = HashSet::new();
 
     for (idx, repo) in repos.into_iter().enumerate() {
-        progress.set_message(repo.clone());
         let repo_dir = git_ops::infer_repo_dir(&repo);
         let dest = base_dir.join(&repo_dir);
         let dest_key = dest.to_string_lossy().to_string();
@@ -87,7 +86,6 @@ pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> 
             let progress = progress_for_tasks.clone();
             let git_ssh_command = git_ssh_command.clone();
             async move {
-                progress.set_message(repo.clone());
                 let result = git_ops::clone_repo(&repo, &dest, git_ssh_command.as_deref()).await;
                 progress.inc(1);
                 (idx, repo, dest, result)
