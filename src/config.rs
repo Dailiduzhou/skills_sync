@@ -3,6 +3,7 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::PathBuf;
+use std::fs as stdfs;
 use tokio::fs;
 
 /// 定义配置文件的结构
@@ -12,6 +13,9 @@ pub struct Config {
     pub repos: Vec<String>,
     #[serde(default = "default_concurrency")]
     pub concurrency: usize,
+    // 回退存储的 SSH 私钥（弱加密或明文，按前缀区分）
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ssh_private_key_fallback: Option<String>,
 }
 
 fn default_concurrency() -> usize {
@@ -23,6 +27,7 @@ impl Default for Config {
         Self {
             repos: Vec::new(),
             concurrency: default_concurrency(),
+            ssh_private_key_fallback: None,
         }
     }
 }
@@ -91,6 +96,61 @@ impl Config {
         fs::write(&path, toml_string)
             .await
             .with_context(|| format!("无法写入配置文件: {:?}", path))?;
+
+        #[cfg(unix)]
+        if self.ssh_private_key_fallback.is_some() {
+            use std::os::unix::fs::PermissionsExt;
+            let perm = std::fs::Permissions::from_mode(0o600);
+            std::fs::set_permissions(&path, perm)
+                .with_context(|| format!("无法设置配置文件权限: {:?}", path))?;
+        }
+
+        Ok(())
+    }
+
+    /// 同步方式获取配置文件路径（用于非 async 场景）
+    pub fn get_path_blocking() -> Result<PathBuf> {
+        if let Some(proj_dirs) = ProjectDirs::from("com", "dailiduzhou", "skillsync") {
+            let config_dir = proj_dirs.config_dir();
+            if !config_dir.exists() {
+                stdfs::create_dir_all(config_dir).context("无法创建配置目录")?;
+            }
+            Ok(config_dir.join("config.toml"))
+        } else {
+            anyhow::bail!("无法确定操作系统的标准配置目录");
+        }
+    }
+
+    /// 同步方式加载配置（用于非 async 场景）
+    pub fn load_blocking() -> Result<Self> {
+        let path = Self::get_path_blocking()?;
+        if !path.exists() {
+            return Ok(Config::default());
+        }
+
+        let content = stdfs::read_to_string(&path)
+            .with_context(|| format!("无法读取配置文件: {:?}", path))?;
+
+        let config: Config =
+            toml::from_str(&content).with_context(|| format!("配置文件格式错误: {:?}", path))?;
+
+        Ok(config)
+    }
+
+    /// 同步方式保存配置（用于非 async 场景）
+    pub fn save_blocking(&self) -> Result<()> {
+        let path = Self::get_path_blocking()?;
+        let toml_string = toml::to_string_pretty(self).context("序列化配置失败")?;
+        stdfs::write(&path, toml_string)
+            .with_context(|| format!("无法写入配置文件: {:?}", path))?;
+
+        #[cfg(unix)]
+        if self.ssh_private_key_fallback.is_some() {
+            use std::os::unix::fs::PermissionsExt;
+            let perm = std::fs::Permissions::from_mode(0o600);
+            std::fs::set_permissions(&path, perm)
+                .with_context(|| format!("无法设置配置文件权限: {:?}", path))?;
+        }
 
         Ok(())
     }
