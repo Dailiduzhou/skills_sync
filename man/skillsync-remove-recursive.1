@@ -1,0 +1,19 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH remove-recursive 1  "remove-recursive " 
+.SH NAME
+remove\-recursive \- 递归扫描目录，从监控列表中删除其下所有 Git 仓库
+.SH SYNOPSIS
+\fBskillsync remove\-recursive\fR [\fB\-\-max\-depth\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fIPATH\fR] 
+.SH DESCRIPTION
+递归扫描目录，从监控列表中删除其下所有 Git 仓库
+.SH OPTIONS
+.TP
+\fB\-\-max\-depth\fR \fI<MAX_DEPTH>\fR
+最大扫描深度（不传则不限深度，0 表示仅当前目录）
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+[\fIPATH\fR] [default: .]
+扫描的根目录，默认为当前目录

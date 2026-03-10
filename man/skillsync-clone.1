@@ -1,0 +1,19 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH clone 1  "clone " 
+.SH NAME
+clone \- 克隆一个或多个 Git 仓库，并自动加入监控列表
+.SH SYNOPSIS
+\fBskillsync clone\fR [\fB\-\-dir\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fIREPOS\fR] 
+.SH DESCRIPTION
+克隆一个或多个 Git 仓库，并自动加入监控列表
+.SH OPTIONS
+.TP
+\fB\-\-dir\fR \fI<DIR>\fR [default: .]
+克隆目标目录（默认当前目录）
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+[\fIREPOS\fR]
+仓库地址，支持多个

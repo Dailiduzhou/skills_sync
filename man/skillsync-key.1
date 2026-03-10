@@ -1,0 +1,26 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH key 1  "key " 
+.SH NAME
+key \- 管理项目私有的 SSH 私钥（存储在系统钥匙串中）
+.SH SYNOPSIS
+\fBskillsync key\fR [\fB\-h\fR|\fB\-\-help\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+管理项目私有的 SSH 私钥（存储在系统钥匙串中）
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.SH SUBCOMMANDS
+.TP
+key\-import(1)
+从文件导入 SSH 私钥到系统钥匙串
+.TP
+key\-remove(1)
+从系统钥匙串删除已保存的 SSH 私钥
+.TP
+key\-status(1)
+查看是否已保存 SSH 私钥
+.TP
+key\-help(1)
+Print this message or the help of the given subcommand(s)

@@ -1,0 +1,47 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH skillsync 1  "skillsync " 
+.SH NAME
+skillsync \- 多 Git 仓库状态同步与更新工具
+.SH SYNOPSIS
+\fBskillsync\fR [\fB\-h\fR|\fB\-\-help\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+多 Git 仓库状态同步与更新工具
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.SH SUBCOMMANDS
+.TP
+skillsync\-status(1)
+检查所有仓库的状态
+.TP
+skillsync\-update(1)
+更新所有落后的仓库
+.TP
+skillsync\-concurrency(1)
+查询当前并发数
+.TP
+skillsync\-set\-concurrency(1)
+设置并发数
+.TP
+skillsync\-add(1)
+将一个或多个本地 Git 仓库添加到监控列表中
+.TP
+skillsync\-add\-recursive(1)
+递归扫描目录，把子文件夹中的 Git 仓库加入监控列表
+.TP
+skillsync\-remove(1)
+从监控列表中删除一个或多个本地 Git 仓库
+.TP
+skillsync\-remove\-recursive(1)
+递归扫描目录，从监控列表中删除其下所有 Git 仓库
+.TP
+skillsync\-clone(1)
+克隆一个或多个 Git 仓库，并自动加入监控列表
+.TP
+skillsync\-key(1)
+管理项目私有的 SSH 私钥（存储在系统钥匙串中）
+.TP
+skillsync\-help(1)
+Print this message or the help of the given subcommand(s)

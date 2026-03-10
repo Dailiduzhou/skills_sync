@@ -1,13 +1,5 @@
-// src/main.rs
-mod app;
-mod cli;
-mod commands;
-mod config;
-mod git;
-mod ssh_key;
-
 use clap::Parser;
-use crate::cli::Cli;
+use skills_sync::{app, cli::Cli};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
