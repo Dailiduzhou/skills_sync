@@ -2,9 +2,7 @@ use clap::{Command, CommandFactory};
 use clap_complete::{generate_to, shells};
 use clap_mangen::Man;
 use std::{
-    env,
-    fs,
-    io,
+    env, fs, io,
     path::{Path, PathBuf},
 };
 

@@ -1,11 +1,10 @@
 use anyhow::Result;
 
 use crate::cli::{Cli, Commands};
-use crate::commands::{clone as clone_cmd, concurrency, key, repos, status, update};
+use crate::commands::{add, clone as clone_cmd, concurrency, key, remove, status, update};
 use crate::config::Config;
 
 pub async fn run(cli: Cli) -> Result<()> {
-    // 每次运行命令前，先加载配置文件
     let mut config = Config::load().await?;
 
     match cli.command {
@@ -14,16 +13,16 @@ pub async fn run(cli: Cli) -> Result<()> {
             concurrency::set(&mut config, value).await?;
         }
         Commands::Add { paths } => {
-            repos::add(&mut config, paths).await?;
+            add::add(&mut config, paths).await?;
         }
         Commands::AddRecursive { path, max_depth } => {
-            repos::add_recursive(&mut config, path, max_depth).await?;
+            add::add_recursive(&mut config, path, max_depth).await?;
         }
         Commands::Remove { paths } => {
-            repos::remove(&mut config, paths).await?;
+            remove::remove(&mut config, paths).await?;
         }
         Commands::RemoveRecursive { path, max_depth } => {
-            repos::remove_recursive(&mut config, path, max_depth).await?;
+            remove::remove_recursive(&mut config, path, max_depth).await?;
         }
         Commands::Clone { repos, dir } => {
             clone_cmd::run_clone(&mut config, repos, dir).await?;
@@ -41,3 +40,4 @@ pub async fn run(cli: Cli) -> Result<()> {
 
     Ok(())
 }
+
