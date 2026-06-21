@@ -7,7 +7,8 @@ use tokio::fs;
 
 use crate::config::Config;
 use crate::git::ops as git_ops;
-use crate::ssh_key;
+use crate::repo;
+use crate::ssh;
 
 pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> Result<()> {
     let base_dir = PathBuf::from(&dir);
@@ -29,7 +30,7 @@ pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> 
     let config_dir = config_path
         .parent()
         .ok_or_else(|| anyhow::anyhow!("无法定位配置目录"))?;
-    let prepared_key = ssh_key::prepare_git_ssh_command(config_dir)?;
+    let prepared_key = ssh::prepare_git_ssh_command(config_dir)?;
     let git_ssh_command = prepared_key
         .as_ref()
         .map(|prepared| prepared.ssh_command.as_str());
@@ -110,7 +111,7 @@ pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> 
     progress.finish_and_clear();
 
     if !cloned_paths.is_empty() {
-        let summary = config.add_repos(cloned_paths).await?;
+        let summary = repo::add_repos(config, cloned_paths).await?;
         println!(
             "克隆完成：新增 {} 个，已存在 {} 个。",
             summary.added, summary.already
@@ -134,3 +135,4 @@ pub async fn run_clone(config: &mut Config, repos: Vec<String>, dir: String) -> 
 
     Ok(())
 }
+
